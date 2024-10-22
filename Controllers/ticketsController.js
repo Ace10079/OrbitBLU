@@ -85,6 +85,7 @@ exports.getAllTickets = async (req, res, next) => {
 };
 
 // Get All Tickets (GET) - Decrypt data for authenticated users (using Bearer token)
+// Get All Tickets (GET) - Decrypt data for authenticated users (using Bearer token)
 exports.getAllTicketsDecrypted = async (req, res, next) => {
     try {
         const tickets = await TicketsService.getAllTickets();
@@ -93,17 +94,27 @@ exports.getAllTicketsDecrypted = async (req, res, next) => {
         const token = req.headers.authorization.split(' ')[1];
         const decoded = jwt.verify(token, JWT_SECRET);
         
-        // Assuming the user is authenticated and the token contains the user's details
-        // If you want to use this token for extra verification, you can
-        console.log("User ID from Token:", decoded.userId);  // Example: Log userId from token
+        console.log("User ID from Token:", decoded.userId);  // Log userId from token
         
         // Decrypt data using the same key used for encryption
-        const decryptedTickets = tickets.map(ticket => ({
-            ...ticket._doc,
-            name: CryptoJS.AES.decrypt(ticket.name, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
-            complaint: CryptoJS.AES.decrypt(ticket.complaint, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
-            note: CryptoJS.AES.decrypt(ticket.note, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
-        }));
+        const decryptedTickets = tickets.map(ticket => {
+            try {
+                return {
+                    ...ticket._doc,
+                    name: CryptoJS.AES.decrypt(ticket.name, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
+                    complaint: CryptoJS.AES.decrypt(ticket.complaint, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
+                    note: CryptoJS.AES.decrypt(ticket.note, ENCRYPTION_SECRET).toString(CryptoJS.enc.Utf8),
+                };
+            } catch (decryptionError) {
+                console.error("Error decrypting ticket:", ticket.ticket_id, decryptionError.message);
+                return {
+                    ...ticket._doc,
+                    name: "[Decryption Failed]",
+                    complaint: "[Decryption Failed]",
+                    note: "[Decryption Failed]",
+                };
+            }
+        });
 
         res.status(200).json({
             status: true,
