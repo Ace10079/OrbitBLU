@@ -5,7 +5,7 @@ const { Schema } = mongoose;
 const InstitutionSchema = new Schema({
   institution_id: String,
   institution_name: String,
-  email: { type: String, unique: true, required: true },
+  email: { type: String, required: true }, 
   spoc_name: String,
   spoc_phone: Number,
   address: String,

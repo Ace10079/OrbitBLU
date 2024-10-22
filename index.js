@@ -10,6 +10,7 @@ const LeadsRouter = require('./Routers/leadsRouter');
 const EnquiriesRouter = require('./Routers/enquiriesRouter');
 const TicketsRouter = require('./Routers/ticketsRouter');
 const PackagesRouter = require('./Routers/packagesRouter');
+const AdminRouter=require('./Routers/adminRouter')
 
 
 
@@ -24,7 +25,7 @@ app.use('/leads', LeadsRouter);
 app.use('/enquiries', EnquiriesRouter);
 app.use('/tickets', TicketsRouter);
 app.use('/packages', PackagesRouter);
-
+app.use('/admin', AdminRouter);
 // Basic route
 app.get('/', (req, res) => {
   res.send('Hello World!');
